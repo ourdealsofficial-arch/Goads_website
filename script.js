@@ -90,13 +90,29 @@ function updateTableOfContents(activeTabId) {
 
 // Initial setup on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Check initial hash
-    const hash = window.location.hash.replace('#', '');
-    if (hash === 'terms' || hash === 'terms-conditions') {
-        switchPolicyTab('terms');
-    } else {
-        switchPolicyTab('privacy');
+    // Handle URL hash on load and change
+    function handleRouteHash() {
+        const rawHash = window.location.hash.replace('#', '').trim();
+        if (rawHash === 'terms' || rawHash === 'terms-conditions' || rawHash.startsWith('tc-')) {
+            switchPolicyTab('terms');
+        } else {
+            switchPolicyTab('privacy');
+        }
+
+        if (rawHash && rawHash !== 'privacy' && rawHash !== 'terms') {
+            setTimeout(() => {
+                const targetId = (rawHash === 'deletion' || rawHash === 'data-deletion') ? 'pp-retention-deletion' : rawHash;
+                const target = document.getElementById(targetId);
+                if (target) {
+                    const pos = target.offsetTop - 100;
+                    window.scrollTo({ top: pos, behavior: 'smooth' });
+                }
+            }, 200);
+        }
     }
+
+    handleRouteHash();
+    window.addEventListener('hashchange', handleRouteHash);
 
     // Segmented button listeners
     const buttons = document.querySelectorAll('.switch-btn');
